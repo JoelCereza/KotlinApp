@@ -1,0 +1,32 @@
+import android.view.View
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.androidproject.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+
+class MaterialViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+
+    private val tvMaterial:TextView = view.findViewById(R.id.tvMaterial)
+    private val tvMaterialCategory:TextView = view.findViewById(R.id.tvMaterialCategory)
+    private val tvUnits:TextView = view.findViewById(R.id.tvUnits)
+    private val btnRemove: FloatingActionButton = view.findViewById(R.id.btnRemove)
+
+    fun render(
+        material: Material,
+        onClickListener: (Material) -> Unit,
+        onClickDeleted: (Int) -> Unit
+    ){
+        tvMaterial.text = material.name
+        tvUnits.text = material.units.toString()
+
+        itemView.setOnClickListener { onClickListener(material) }
+
+        when (material.category){
+            MaterialCategory.Tipus1 -> tvMaterialCategory.text = "T1"
+            MaterialCategory.Tipus2 -> tvMaterialCategory.text = "T2"
+            else -> tvMaterialCategory.text = "T3"
+        }
+
+        btnRemove.setOnClickListener { onClickDeleted(adapterPosition) }
+    }
+}
