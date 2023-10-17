@@ -1,0 +1,2 @@
+data class Material(val name:String, val category: MaterialCategory, var units:Int, var isSelected:Boolean = false) {
+}
