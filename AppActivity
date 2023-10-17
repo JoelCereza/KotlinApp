@@ -1,0 +1,202 @@
+package com.example.androidproject.App
+
+import android.app.Dialog
+import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.SearchView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import com.example.androidproject.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+
+
+class AppActivity : AppCompatActivity() {
+
+
+    private val MaterialCategories = listOf(
+        com.example.androidproject.App.MaterialCategory.Tipus1,
+        com.example.androidproject.App.MaterialCategory.Tipus2,
+        com.example.androidproject.App.MaterialCategory.Tipus3
+    )
+
+    private val materials = mutableListOf(
+        Material("Material 1", MaterialCategory.Tipus1, 25),
+        Material("Material 2", MaterialCategory.Tipus2, 30),
+        Material("Material 3", MaterialCategory.Tipus3, 20),
+        Material("Material 4", MaterialCategory.Tipus1, 15)
+    )
+
+    private lateinit var rvTipus: RecyclerView
+    private lateinit var materialCategoriesAdapter: MaterialCategoriesAdapter
+
+    private lateinit var rvMaterial: RecyclerView
+    private lateinit var materialAdapter: MaterialAdapter
+
+    private lateinit var btnAddMaterial: Button
+    private lateinit var svMaterial: EditText
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_app)
+        initComponent()
+        initUI()
+        initListeners()
+        svMaterial.addTextChangedListener { userFilter ->
+           val materialFiltered = materials.filter { material -> material.name.lowercase().contains(userFilter.toString().lowercase()) }
+            materialAdapter.updateMaterials(materialFiltered)
+            updateMaterials()
+        }
+    }
+
+
+    private fun initComponent() {
+        rvTipus = findViewById(R.id.rvTipus)
+        rvMaterial = findViewById(R.id.rvMaterial)
+        btnAddMaterial = findViewById(R.id.btnAddMaterial)
+        svMaterial = findViewById(R.id.svMaterial)
+    }
+
+    private fun initUI() {
+        materialCategoriesAdapter = MaterialCategoriesAdapter(MaterialCategories)
+        rvTipus.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvTipus.adapter = materialCategoriesAdapter
+
+        materialAdapter = MaterialAdapter(
+            materials,
+            onClickListener = { onItemSelected(it) },
+            onClickDeleted = {onDelatedItem(it)})
+        rvMaterial.layoutManager = GridLayoutManager(this, 2)
+        rvMaterial.adapter = materialAdapter
+    }
+
+     private fun onDelatedItem(position:Int){
+        materials.removeAt(position)
+         materialAdapter.notifyItemRemoved(position)
+    }
+
+    private fun initListeners() {
+        btnAddMaterial.setOnClickListener {
+            showCreateDialog()
+        }
+    }
+
+    private fun showCreateDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_create)
+
+        val btnFinishMaterial: Button = dialog.findViewById(R.id.btnFinishMaterial)
+        val etMaterial: EditText = dialog.findViewById(R.id.etMaterial)
+        val rgTipus: RadioGroup = dialog.findViewById(R.id.rgTipus)
+        val btnSubtractMaterialUnit: FloatingActionButton =
+            dialog.findViewById(R.id.btnSubtractMaterialUnit)
+        val btnAddMaterialUnit: FloatingActionButton = dialog.findViewById(R.id.btnAddMaterialUnit)
+        val tvAddMaterialUint: TextView = dialog.findViewById(R.id.tvAddMaterialUint)
+
+        var currentUnits: Int = 10
+
+        fun setUnit() {
+            tvAddMaterialUint.text = currentUnits.toString()
+        }
+
+        btnSubtractMaterialUnit.setOnClickListener {
+            currentUnits -= 1
+            setUnit()
+        }
+
+        btnAddMaterialUnit.setOnClickListener {
+            currentUnits += 1
+            setUnit()
+        }
+
+        btnFinishMaterial.setOnClickListener {
+            val currentMaterial = etMaterial.text.toString()
+            if (currentMaterial.isNotEmpty()) {
+
+                val selectedId = rgTipus.checkedRadioButtonId
+                val selectedRadioButton: RadioButton = rgTipus.findViewById(selectedId)
+                val currentCategory: MaterialCategory = when (selectedRadioButton.text) {
+                    "Tipus 1" -> MaterialCategory.Tipus1
+                    "Tipus 2" -> MaterialCategory.Tipus2
+                    else -> MaterialCategory.Tipus3
+                }
+
+
+                materials.add(Material(currentMaterial, currentCategory, currentUnits))
+                updateMaterials()
+                dialog.hide()
+
+            }
+
+        }
+
+        dialog.show()
+    }
+
+    private fun updateMaterials() {
+        materialAdapter.notifyDataSetChanged()
+    }
+
+    fun onItemSelected(material: Material) {
+
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_material)
+
+        val tvMaterialName: TextView = dialog.findViewById(R.id.tvMaterialName)
+        val tvTipus: TextView = dialog.findViewById(R.id.tvTipus)
+        val tvAddMaterialUint: TextView = dialog.findViewById(R.id.tvAddMaterialUint)
+        val btnSubtractMaterialUnit: FloatingActionButton =
+            dialog.findViewById(R.id.btnSubtractMaterialUnit)
+        val btnAddMaterialUnit: FloatingActionButton = dialog.findViewById(R.id.btnAddMaterialUnit)
+        val btnSaveMaterial: Button = dialog.findViewById(R.id.btnSaveMaterial)
+
+
+        tvMaterialName.text = material.name
+        tvAddMaterialUint.text = material.units.toString()
+
+
+        fun setUnit() {
+            tvAddMaterialUint.text = material.units.toString()
+        }
+
+        when (material.category) {
+            MaterialCategory.Tipus1 -> tvTipus.text = "Tipus 1"
+            MaterialCategory.Tipus2 -> tvTipus.text = "Tipus 2"
+            else -> tvTipus.text = "Tipus 3"
+        }
+
+
+        btnSubtractMaterialUnit.setOnClickListener {
+            material.units -= 1
+            setUnit()
+        }
+
+        btnAddMaterialUnit.setOnClickListener {
+            material.units += 1
+            setUnit()
+        }
+
+        btnSaveMaterial.setOnClickListener {
+
+            updateMaterials()
+            dialog.hide()
+
+        }
+
+        dialog.show()
+
+    }
+
+
+}
