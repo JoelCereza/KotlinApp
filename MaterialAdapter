@@ -1,0 +1,30 @@
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.androidproject.R
+
+class MaterialAdapter(
+    private var materials: List<Material>,
+    private val onClickListener: (Material) -> Unit,
+    private val onClickDeleted:(Int) -> Unit
+) :
+    RecyclerView.Adapter<MaterialViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MaterialViewHolder {
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_material, parent, false)
+        return MaterialViewHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+        return materials.size
+    }
+
+    override fun onBindViewHolder(holder: MaterialViewHolder, position: Int) {
+        holder.render(materials[position], onClickListener, onClickDeleted)
+    }
+
+    fun updateMaterials(materials: List<Material>){
+        this.materials = materials
+        notifyDataSetChanged()
+    }
+}
