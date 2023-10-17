@@ -1,0 +1,24 @@
+import android.view.View
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.androidproject.R
+
+class MaterialCategoriesViewHolder(view: View) : RecyclerView.ViewHolder(view){
+
+    private val tvTipusName:TextView = view.findViewById(R.id.tvTipusName)
+
+    fun render(materialCategory: MaterialCategory){
+
+        when(materialCategory){
+            MaterialCategory.Tipus1 -> {
+                tvTipusName.text = "Tipus 1"
+            }
+            MaterialCategory.Tipus2 -> {
+                tvTipusName.text = "Tipus 2"
+            }
+            MaterialCategory.Tipus3 -> {
+                tvTipusName.text = "Tipus 3"
+            }
+        }
+    }
+}
