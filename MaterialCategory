@@ -1,0 +1,5 @@
+sealed class MaterialCategory {
+    object Tipus1 : MaterialCategory()
+    object Tipus2 : MaterialCategory()
+    object Tipus3 : MaterialCategory()
+}
