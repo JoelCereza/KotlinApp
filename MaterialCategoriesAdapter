@@ -1,0 +1,21 @@
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.androidproject.R
+
+class MaterialCategoriesAdapter(private val categories:List<MaterialCategory>)
+    :RecyclerView.Adapter<MaterialCategoriesViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MaterialCategoriesViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_material_category, parent, false)
+        return MaterialCategoriesViewHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+        return categories.size
+    }
+
+    override fun onBindViewHolder(holder: MaterialCategoriesViewHolder, position: Int) {
+        holder.render(categories[position])
+    }
+}
